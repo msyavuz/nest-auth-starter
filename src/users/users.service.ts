@@ -15,7 +15,7 @@ export class UsersService {
             createUserDto.password,
             saltOrRounds,
         );
-        return await this.drizzle.insert(schema.users).values({
+        return this.drizzle.insert(schema.users).values({
             username: createUserDto.username,
             hashedPass: hashedPassword,
             email: createUserDto.email,
@@ -23,23 +23,23 @@ export class UsersService {
     }
 
     async findAll() {
-        return await this.drizzle.query.users.findMany();
+        return this.drizzle.query.users.findMany();
     }
 
     async findOne(id: number) {
-        return await this.drizzle.query.users.findFirst({
+        return this.drizzle.query.users.findFirst({
             where: (users) => eq(users.id, id),
         });
     }
 
     async findOneByUsername(username: string) {
-        return await this.drizzle.query.users.findFirst({
+        return this.drizzle.query.users.findFirst({
             where: (users) => eq(users.username, username),
         });
     }
 
     async update(id: number, updateUserDto: UpdateUserDto) {
-        return await this.drizzle
+        return this.drizzle
             .update(schema.users)
             .set(updateUserDto)
             .where(eq(schema.users.id, id))
@@ -47,7 +47,7 @@ export class UsersService {
     }
 
     async remove(id: number) {
-        return await this.drizzle
+        return this.drizzle
             .delete(schema.users)
             .where(eq(schema.users.id, id))
             .returning({ deletedId: schema.users.id });

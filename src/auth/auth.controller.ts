@@ -26,7 +26,6 @@ export class AuthController {
 
         response.setCookie("refresh_token", tokens.refresh_token, {
             httpOnly: true,
-            signed: true,
         });
         return {
             access_token: tokens.access_token,

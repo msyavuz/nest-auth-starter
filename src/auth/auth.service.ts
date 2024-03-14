@@ -20,8 +20,8 @@ export class AuthService {
         private usersService: UsersService,
     ) {}
 
-    async refresh(user: JwtPayload) {
-        return await this.generateTokens({
+    refresh(user: JwtPayload) {
+        return this.generateTokens({
             sub: user.sub,
             username: user.username,
         });
@@ -39,7 +39,7 @@ export class AuthService {
                 sub: user.id,
                 username: user.username,
             };
-            return await this.generateTokens(payload);
+            return this.generateTokens(payload);
         }
         throw new ConflictException();
     }
@@ -52,29 +52,29 @@ export class AuthService {
                 sub: user.id,
                 username: user.username,
             };
-            return await this.generateTokens(payload);
+            return this.generateTokens(payload);
         }
         throw new UnauthorizedException();
     }
 
     async validateUser(username: string, password: string) {
         const user = await this.usersService.findOneByUsername(username);
-        if (user) {
-            const passed = await bcrypt.compare(password, user.hashedPass);
-            if (passed) {
-                return {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                };
-            }
-            return null;
+
+        const passed =
+            (await bcrypt.compare(password, user?.hashedPass ?? "")) && !!user;
+
+        if (passed) {
+            return {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+            };
         }
         return null;
     }
 
     async verifyToken(token: string, type: "access" | "refresh") {
-        return await this.jwtService.verifyAsync(token, {
+        return this.jwtService.verifyAsync(token, {
             secret:
                 type === "access"
                     ? this.configService.getOrThrow("JWT_SECRET_ACCESS")
@@ -86,7 +86,7 @@ export class AuthService {
         payload: JwtPayload,
         type: "access" | "refresh" = "access",
     ): Promise<string> {
-        return await this.jwtService.signAsync(payload, {
+        return this.jwtService.signAsync(payload, {
             expiresIn: type === "access" ? "15m" : "7d",
             secret:
                 type === "access"
